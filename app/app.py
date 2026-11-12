@@ -19,10 +19,10 @@ st.set_page_config(page_title="AgroMarket · Hoje é dia de vender?", page_icon=
                    initial_sidebar_state="collapsed")
 
 # ------------------------------------------------------------------ estilo
-try:
-    ESCURO = (st.context.theme.type == "dark")
-except Exception:
-    ESCURO = False
+# Botão lua/sol: começa escuro; ?tema=claro no link abre claro
+if "escuro" not in st.session_state:
+    st.session_state.escuro = st.query_params.get("tema", "escuro") != "claro"
+ESCURO = st.session_state.escuro
 if ESCURO:   # paleta escura (fundo grafite, cartões cinza, verde/vermelho suaves)
     TXT, CINZA, BORDA, FUNDO, CARTAO, GRADE, TRILHO = "#e8eaed", "#9aa0a6", "#3c4043", "#202124", "#28292c", "#35363a", "#3c4043"
     VERDE, VERDE_BG = "#81c995", "rgba(129,201,149,.16)"
@@ -81,6 +81,27 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 div[data-testid="stPopover"] button {{ border-radius: 18px; }}
 </style>""", unsafe_allow_html=True)
 
+if not ESCURO:
+    st.markdown(f"""<style>
+.stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {{ background: {FUNDO} !important; color: {TXT}; }}
+.stApp [data-testid="stMarkdownContainer"], .stApp label, .stApp label p, [data-testid="stWidgetLabel"] p,
+[data-testid="stCaptionContainer"], [data-testid="stExpander"] summary, [data-testid="stExpander"] summary p {{ color: {TXT} !important; }}
+[data-testid="stCaptionContainer"] {{ color: {CINZA} !important; }}
+[data-baseweb="select"] > div, [data-baseweb="input"], [data-baseweb="input"] > div, .stNumberInput input,
+.stDateInput input, [data-baseweb="base-input"] {{ background: #f1f3f4 !important; color: {TXT} !important; border-color: #f1f3f4 !important; }}
+[data-baseweb="select"] svg, .stNumberInput button {{ color: {TXT} !important; fill: {TXT} !important; }}
+.stNumberInput button {{ background: #f1f3f4 !important; }}
+.stButton button, [data-testid="stPopover"] button, [data-testid="stBaseButton-segmented_control"],
+[data-testid="stBaseButton-secondary"], [data-testid="stBaseButton-tertiary"] {{ background: {CARTAO} !important; color: {TXT} !important; border-color: {BORDA} !important; }}
+[data-testid="stBaseButton-segmented_controlActive"] {{ background: {VERDE_BG} !important; color: {VERDE} !important; border-color: {VERDE} !important; }}
+[data-testid="stExpander"] details, [data-testid="stVerticalBlockBorderWrapper"] {{ border-color: {BORDA} !important; background: {CARTAO}; }}
+[data-baseweb="popover"] *, [data-baseweb="menu"] {{ background-color: {CARTAO}; color: {TXT}; }}
+pre, code {{ background: #f1f3f4 !important; color: {TXT} !important; }}
+[data-testid="stExpander"] summary {{ background: transparent !important; }}
+[data-testid="stNumberInputContainer"], [data-testid="stNumberInput"] > div > div {{ border-color: #f1f3f4 !important; }}
+[data-testid="stAlert"] {{ color: {TXT}; }}
+</style>""", unsafe_allow_html=True)
+
 if not DB.exists():
     st.error("Banco não encontrado. Rode antes: `python rodar_etl.py`")
     st.stop()
@@ -136,7 +157,9 @@ def nome_praca(row):
 
 
 # ------------------------------------------------------------------ topo
-t1, t2, t3 = st.columns([2.2, 2.6, 1.6], vertical_alignment="center")
+t1, t2, t3, t4 = st.columns([2.2, 2.6, 1.6, .45], vertical_alignment="center")
+t4.button("☀️" if ESCURO else "🌙", key="tema_btn", help="Modo claro" if ESCURO else "Modo escuro",
+          on_click=lambda: st.session_state.update(escuro=not st.session_state.escuro))
 t1.markdown('<div class="marca">🌱 Agro<b>Market</b></div>', unsafe_allow_html=True)
 produto = t3.segmented_control("Produto", ["soja", "milho"], default="soja", format_func=str.capitalize,
                                label_visibility="collapsed") or "soja"
@@ -196,7 +219,7 @@ with esq:
 
     vista = st.segmented_control("Gráfico", ["Esta época, ano a ano", "Régua das colheitas", "Dólar"],
                                  default="Esta época, ano a ano", label_visibility="collapsed") or "Esta época, ano a ano"
-    layout = dict(height=360, margin=dict(l=0, r=10, t=10, b=0), plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", separators=",.",
+    layout = dict(height=360, margin=dict(l=0, r=60, t=10, b=30), plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", separators=",.",
                   font=dict(family="Roboto", color=CINZA, size=12), hovermode="x unified", showlegend=False,
                   hoverlabel=dict(bgcolor=CARTAO, font_color=TXT, bordercolor=BORDA),
                   yaxis=dict(gridcolor=GRADE, zeroline=False, side="right", tickprefix="R$ "),
@@ -225,7 +248,7 @@ with esq:
         x_hoje = pd.Timestamp("2000-" + hoje[5:])
         fig.add_vline(x=x_hoje, line_color=BORDA, line_width=1)
         fig.update_layout(**layout)
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, use_container_width=True, theme=None, config={"displayModeBar": False})
         st.caption(f"Linhas cinza: preço nos mesmos dias ({JANELA_DIAS} antes e {JANELA_DIAS} depois) de cada ano anterior. "
                    f"Linha colorida: {hoje[:4]}. Pontilhado: preço de hoje.")
 
@@ -242,11 +265,11 @@ with esq:
         fig.add_vline(x=r["preco"], line_width=2, line_color=TXT,
                       annotation_text=f"hoje R$ {br(r['preco'])}", annotation_position="top")
         lo, hi = min(r["minimo"], r["preco"]), max(r["maximo"], r["preco"])
-        lay = {**layout, "hovermode": "closest", "margin": dict(l=0, r=10, t=30, b=0)}
+        lay = {**layout, "hovermode": "closest", "margin": dict(l=50, r=10, t=30, b=30)}
         lay["xaxis"] = dict(showgrid=True, gridcolor=GRADE, tickprefix="R$ ", range=[lo - (hi - lo) * .06, hi + (hi - lo) * .4])
         lay["yaxis"] = dict(showgrid=False, autorange="reversed")
         fig.update_layout(**lay)
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, use_container_width=True, theme=None, config={"displayModeBar": False})
         st.caption("Cada barra vai do pior ao melhor preço da época naquele ano. Verde: hoje é melhor que todos os dias daquele ano; "
                    "vermelho: hoje é pior que todos.")
 
@@ -266,7 +289,7 @@ with esq:
         lay = {**layout}
         lay["yaxis"] = dict(gridcolor=GRADE, side="right", tickprefix="R$ ", range=[ptax.ptax_venda.min() - .1, ptax.ptax_venda.max() + .1])
         fig.update_layout(**lay)
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, use_container_width=True, theme=None, config={"displayModeBar": False})
         st.caption("Dólar oficial do Banco Central (PTAX de venda) nos mesmos dias de cada ano. Azul: ano atual.")
 
 # ------------------------------------------------------------------ coluna direita

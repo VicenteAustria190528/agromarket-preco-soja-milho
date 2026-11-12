@@ -54,7 +54,7 @@ Visual de painel financeiro, em uma página só:
 - **Compare com outras praças**, com botão para trocar de praça
 - **Sobre os dados**: arquitetura, fontes e licenças, cobertura, alertas de qualidade, consulta SQL e download da tabela
 
-Modo claro e escuro: segue o tema do celular ou computador; para trocar, menu ⋮ > Settings > Theme.
+Modo escuro por padrão; o botão ☀️/🌙 no canto superior direito troca para o claro (ou abra o link com ?tema=claro).
 
 Prints na pasta `prints/`.
 
