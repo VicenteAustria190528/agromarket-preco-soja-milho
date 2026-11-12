@@ -20,7 +20,8 @@ BCB PTAX (API)      ─┘   etl/carregar_dw.py                                 
 |---|---|---|
 | Extrair | `etl/extrair_ptax.py`, `etl/extrair_noticias_agricolas.py` | Baixa as fontes e guarda o bruto em `data/raw/`, sem alterar |
 | Transformar | `etl/transformar.py` | Vírgula → ponto, praça → código IBGE, descarta "s/ cotação" e fechamento de outro dia, remove duplicados, marca saltos > 10% (preço) e > 5% (dólar) |
-| Carregar | `etl/carregar_dw.py` + `sql/schema.sql` | Cria o banco SQLite e carrega dimensões, fatos e `log_carga` |
+| Planilhas | `etl/montar_planilhas.py` → `planilhas/` | Uma planilha por fonte (abas dados, bruto e sobre) |
+| Carregar | `planilhas_para_sqlite.py` + `sql/schema.sql` | Converte as planilhas no banco SQLite (dimensões, fatos e `log_carga`) |
 | Analisar | `etl/analise.py` | Percentil sazonal em SQL, lido do banco (usado pela planilha e pelo site) |
 | Exportar | `etl/exportar_excel.py` | Gera a planilha consolidada a partir do banco, com painel e gráficos |
 | Apresentar | `app/app.py` | Site em Streamlit que consulta o banco |
