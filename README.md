@@ -41,13 +41,19 @@ streamlit run app/app.py       # abre o site no navegador (http://localhost:8501
 
 Atalho: no Windows, dê dois cliques em `abrir_site_windows.bat` (no Mac/Linux, `./abrir_site_mac_linux.sh`). É preciso ter o Python 3.10+ instalado.
 
-## Telas do site
-1. **Hoje é dia de vender?** · veredito em linguagem de produtor, nota de 0 a 100, margem (se informar o custo) e a régua das últimas 5 colheitas
-2. **Painel BI** · preço da época ano a ano, distribuição por ano, comparação entre praças e o dólar
-3. **É a soja ou o dólar?** · separa o efeito do câmbio do efeito do grão
-4. **Dados e banco** · fontes e licenças, cobertura por praça e ano, alertas de qualidade, a consulta SQL e a tabela fato para baixar
+## O site
+Site publicado: https://agromarket-upf.streamlit.app
 
-Prints das telas na pasta `prints/`.
+Visual de painel financeiro, em uma página só:
+- **Preço em destaque** com selo verde/vermelho da variação contra a média da época
+- **Veredito em linguagem de produtor** e uma régua de "fraco" a "muito bom"
+- **Gráfico com seletor**: esta época ano a ano · régua das colheitas · dólar
+- **Resumo** (média, pior e melhor dia, preço em dólar, dólar normal) e **simulador de oferta e margem**
+- **Por que o preço está assim?** separa o efeito do dólar do efeito do grão
+- **Compare com outras praças**, com botão para trocar de praça
+- **Sobre os dados**: arquitetura, fontes e licenças, cobertura, alertas de qualidade, consulta SQL e download da tabela
+
+Prints na pasta `prints/`.
 
 ## Regra de cálculo
 - Época = 15 dias antes e 15 depois da data de análise, nos 5 anos anteriores, mesma praça e produto
