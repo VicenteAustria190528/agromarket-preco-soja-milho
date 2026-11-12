@@ -1,8 +1,17 @@
-[theme]
-primaryColor = "#1F6B3A"
+# O site segue o tema do aparelho (claro/escuro). Para trocar: menu ⋮ > Settings > Theme.
+[theme.light]
+primaryColor = "#137333"
 backgroundColor = "#FFFFFF"
-secondaryBackgroundColor = "#F1F5F2"
-textColor = "#1F2937"
+secondaryBackgroundColor = "#F1F3F4"
+textColor = "#202124"
+borderColor = "#DADCE0"
+
+[theme.dark]
+primaryColor = "#81C995"
+backgroundColor = "#202124"
+secondaryBackgroundColor = "#303134"
+textColor = "#E8EAED"
+borderColor = "#3C4043"
 
 [server]
 headless = true

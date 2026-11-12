@@ -19,12 +19,24 @@ st.set_page_config(page_title="AgroMarket · Hoje é dia de vender?", page_icon=
                    initial_sidebar_state="collapsed")
 
 # ------------------------------------------------------------------ estilo
-TXT, CINZA, BORDA, FUNDO = "#202124", "#5f6368", "#dadce0", "#f8f9fa"
-VERDE, VERDE_BG = "#137333", "#e6f4ea"
-VERM, VERM_BG = "#c5221f", "#fce8e6"
-AMAR, AMAR_BG = "#b06000", "#fef7e0"
-AZUL = "#1a73e8"
-ANOS_CINZA = {2021: "#c8ccd0", 2022: "#b3b8bd", 2023: "#9aa0a6", 2024: "#80868b", 2025: "#5f6368"}
+try:
+    ESCURO = (st.context.theme.type == "dark")
+except Exception:
+    ESCURO = False
+if ESCURO:   # paleta escura (fundo grafite, cartões cinza, verde/vermelho suaves)
+    TXT, CINZA, BORDA, FUNDO, CARTAO, GRADE, TRILHO = "#e8eaed", "#9aa0a6", "#3c4043", "#202124", "#28292c", "#35363a", "#3c4043"
+    VERDE, VERDE_BG = "#81c995", "rgba(129,201,149,.16)"
+    VERM, VERM_BG = "#f28b82", "rgba(242,139,130,.16)"
+    AMAR, AMAR_BG = "#fdd663", "rgba(253,214,99,.14)"
+    AZUL, AZUL_FILL = "#8ab4f8", "rgba(138,180,248,.12)"
+    ANOS_CINZA = {2021: "#4a4d51", 2022: "#5f6368", 2023: "#80868b", 2024: "#9aa0a6", 2025: "#bdc1c6"}
+else:        # paleta clara
+    TXT, CINZA, BORDA, FUNDO, CARTAO, GRADE, TRILHO = "#202124", "#5f6368", "#dadce0", "#ffffff", "#ffffff", "#eef0f2", "#eceff1"
+    VERDE, VERDE_BG = "#137333", "#e6f4ea"
+    VERM, VERM_BG = "#c5221f", "#fce8e6"
+    AMAR, AMAR_BG = "#b06000", "#fef7e0"
+    AZUL, AZUL_FILL = "#1a73e8", "rgba(26,115,232,.08)"
+    ANOS_CINZA = {2021: "#c8ccd0", 2022: "#b3b8bd", 2023: "#9aa0a6", 2024: "#80868b", 2025: "#5f6368"}
 
 st.markdown(f"""
 <style>
@@ -47,14 +59,14 @@ header[data-testid="stHeader"] {{ background: transparent; }}
           background: linear-gradient(90deg, {VERM} 0%, #f29900 45%, {VERDE} 100%); opacity: .85; }}
 .regua .m {{ position: absolute; top: -6px; width: 4px; height: 20px; background: {TXT}; border-radius: 2px; }}
 .regua-l {{ display: flex; justify-content: space-between; color: {CINZA}; font-size: .75rem; }}
-.card {{ border: 1px solid {BORDA}; border-radius: 12px; padding: 14px 16px; background: white; }}
+.card {{ border: 1px solid {BORDA}; border-radius: 12px; padding: 14px 16px; background: {CARTAO}; }}
 .card h4 {{ margin: 0 0 6px 0; font-size: 1rem; font-weight: 500; color: {TXT}; }}
 .fatos {{ width: 100%; border-collapse: collapse; font-size: .9rem; border: none !important; margin: 0; }}
-.fatos tr, .fatos td {{ border: none !important; background: white !important; }}
-.fatos td {{ padding: 9px 0 !important; border-bottom: 1px solid #ececec !important; }}
+.fatos tr, .fatos td {{ border: none !important; background: transparent !important; }}
+.fatos td {{ padding: 9px 0 !important; border-bottom: 1px solid {GRADE} !important; }}
 .fatos td:first-child {{ color: {CINZA}; }}
 .fatos td:last-child {{ text-align: right; font-weight: 500; color: {TXT}; }}
-.mini {{ border: 1px solid {BORDA}; border-radius: 12px; padding: 12px 14px; height: 150px; margin-bottom: 6px; }}
+.mini {{ border: 1px solid {BORDA}; background: {CARTAO}; border-radius: 12px; padding: 12px 14px; height: 150px; margin-bottom: 6px; }}
 .mini .selo {{ margin-left: 0; }}
 .mini .n {{ font-size: .85rem; color: {CINZA}; }}
 .mini .p {{ font-size: 1.25rem; font-weight: 500; color: {TXT}; margin: 4px 0; }}
@@ -62,7 +74,7 @@ header[data-testid="stHeader"] {{ background: transparent; }}
 .secao {{ font-size: 1.15rem; font-weight: 500; color: {TXT}; margin: 1.6rem 0 .6rem; }}
 .barra {{ display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: .9rem; }}
 .barra .r {{ width: 210px; color: {CINZA}; }}
-.barra .f {{ flex: 1; height: 10px; background: #eceff1; border-radius: 5px; position: relative; }}
+.barra .f {{ flex: 1; height: 10px; background: {TRILHO}; border-radius: 5px; position: relative; }}
 .barra .f i {{ position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; }}
 .barra .v {{ width: 40px; text-align: right; font-weight: 500; }}
 .rodape {{ color: {CINZA}; font-size: .78rem; margin-top: 2rem; }}
@@ -184,9 +196,10 @@ with esq:
 
     vista = st.segmented_control("Gráfico", ["Esta época, ano a ano", "Régua das colheitas", "Dólar"],
                                  default="Esta época, ano a ano", label_visibility="collapsed") or "Esta época, ano a ano"
-    layout = dict(height=360, margin=dict(l=0, r=10, t=10, b=0), plot_bgcolor="white", paper_bgcolor="white", separators=",.",
+    layout = dict(height=360, margin=dict(l=0, r=10, t=10, b=0), plot_bgcolor="rgba(0,0,0,0)", paper_bgcolor="rgba(0,0,0,0)", separators=",.",
                   font=dict(family="Roboto", color=CINZA, size=12), hovermode="x unified", showlegend=False,
-                  yaxis=dict(gridcolor="#eef0f2", zeroline=False, side="right", tickprefix="R$ "),
+                  hoverlabel=dict(bgcolor=CARTAO, font_color=TXT, bordercolor=BORDA),
+                  yaxis=dict(gridcolor=GRADE, zeroline=False, side="right", tickprefix="R$ "),
                   xaxis=dict(showgrid=False, tickformat="%d/%m", linecolor=BORDA))
 
     if vista == "Esta época, ano a ano":
@@ -197,7 +210,7 @@ with esq:
         fig = go.Figure()
         for ano, g in s.groupby("ano"):
             fig.add_trace(go.Scatter(x=g.x, y=g.preco_brl, name=str(ano), mode="lines",
-                                     line=dict(color=ANOS_CINZA.get(ano, "#9aa0a6"), width=1.6),
+                                     line=dict(color=ANOS_CINZA.get(ano, CINZA), width=1.6),
                                      hovertemplate=f"{ano}: R$ %{{y:.2f}}<extra></extra>"))
             fig.add_annotation(x=g.x.iloc[-1], y=g.preco_brl.iloc[-1], text=str(ano), showarrow=False,
                                xanchor="left", xshift=4, font=dict(size=11, color=ANOS_CINZA.get(ano, CINZA)))
@@ -230,7 +243,7 @@ with esq:
                       annotation_text=f"hoje R$ {br(r['preco'])}", annotation_position="top")
         lo, hi = min(r["minimo"], r["preco"]), max(r["maximo"], r["preco"])
         lay = {**layout, "hovermode": "closest", "margin": dict(l=0, r=10, t=30, b=0)}
-        lay["xaxis"] = dict(showgrid=True, gridcolor="#eef0f2", tickprefix="R$ ", range=[lo - (hi - lo) * .06, hi + (hi - lo) * .4])
+        lay["xaxis"] = dict(showgrid=True, gridcolor=GRADE, tickprefix="R$ ", range=[lo - (hi - lo) * .06, hi + (hi - lo) * .4])
         lay["yaxis"] = dict(showgrid=False, autorange="reversed")
         fig.update_layout(**lay)
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -245,13 +258,13 @@ with esq:
         for ano, g in ptax.groupby("ano"):
             atual_ano = ano == int(hoje[:4])
             fig.add_trace(go.Scatter(x=g.x, y=g.ptax_venda, mode="lines",
-                                     line=dict(color=AZUL if atual_ano else ANOS_CINZA.get(ano, "#9aa0a6"), width=3 if atual_ano else 1.6),
-                                     fill="tozeroy" if atual_ano else None, fillcolor="rgba(26,115,232,.08)",
+                                     line=dict(color=AZUL if atual_ano else ANOS_CINZA.get(ano, CINZA), width=3 if atual_ano else 1.6),
+                                     fill="tozeroy" if atual_ano else None, fillcolor=AZUL_FILL,
                                      hovertemplate=f"{ano}: R$ %{{y:.4f}}<extra></extra>"))
             fig.add_annotation(x=g.x.iloc[-1], y=g.ptax_venda.iloc[-1], text=str(ano), showarrow=False, xanchor="left",
                                xshift=4, font=dict(size=11, color=AZUL if atual_ano else CINZA))
         lay = {**layout}
-        lay["yaxis"] = dict(gridcolor="#eef0f2", side="right", tickprefix="R$ ", range=[ptax.ptax_venda.min() - .1, ptax.ptax_venda.max() + .1])
+        lay["yaxis"] = dict(gridcolor=GRADE, side="right", tickprefix="R$ ", range=[ptax.ptax_venda.min() - .1, ptax.ptax_venda.max() + .1])
         fig.update_layout(**lay)
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
         st.caption("Dólar oficial do Banco Central (PTAX de venda) nos mesmos dias de cada ano. Azul: ano atual.")
