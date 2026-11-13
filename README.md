@@ -52,7 +52,7 @@ Visual de painel financeiro, em uma página só:
 - **Resumo** (média, pior e melhor dia, preço em dólar, dólar normal) e **simulador de oferta e margem**
 - **Por que o preço está assim?** separa o efeito do dólar do efeito do grão
 - **Compare com outras praças**, com botão para trocar de praça
-- **Sobre os dados**: arquitetura, fontes e licenças, cobertura, alertas de qualidade, consulta SQL e download da tabela
+- Página **Fontes de dados** (menu no topo): cada fonte com link, formato, licença e planilha para baixar; "siga um preço" da página original até a linha no banco; modelo estrela, cobertura, alertas e a consulta SQL
 
 Modo escuro por padrão; o botão ☀️/🌙 no canto superior direito troca para o claro (ou abra o link com ?tema=claro).
 
